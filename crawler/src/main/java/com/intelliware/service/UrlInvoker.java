@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import com.microsoft.playwright.*;
 
 public class UrlInvoker {
     private static int MAX_CONNECTION_TIMEOUT = 3000;
@@ -32,7 +31,7 @@ public class UrlInvoker {
                 System.out.println("Can't read " + url + " ,response code: " + responseCode);
             }
         } catch (Exception e) {
-            System.out.println("Error while reading" + url);
+            System.out.println("Error while reading " + url);
         } finally {
             if (reader != null) {
                 try {

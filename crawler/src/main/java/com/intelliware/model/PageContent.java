@@ -1,6 +1,13 @@
 package com.intelliware.model;
 
+import org.bson.types.ObjectId;
+
+import dev.morphia.annotations.*;
+
+@Entity("FetchedPages")
 public class PageContent {
+    @Id
+    private ObjectId id;
     private String content;
 
     public PageContent(String content) {

@@ -12,11 +12,12 @@ import com.intelliware.service.UrlInvoker;
 
 public class Main {
     public static void main(String[] args) {
-        SeedsParser parser = new SeedsParser("seeds.txt");
-        List<URL> urls = parser.parse();
-        TraverserManager manager = new TraverserManager(4, urls, 2);
-        manager.start();
-        manager.waitForFinish();
-        System.out.println(manager.getVisitedPages().size());
+        // SeedsParser parser = new SeedsParser("seeds.txt");
+        // List<URL> urls = parser.parse();
+        // TraverserManager manager = new TraverserManager(4, urls, 2);
+        // manager.start();
+        // manager.waitForFinish();
+        // System.out.println(manager.getVisitedPages().size());
+        System.out.println(System.getenv("MONGODB_URI"));
     }
 }

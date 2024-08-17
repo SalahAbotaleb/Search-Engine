@@ -21,6 +21,7 @@ public class UrlInvoker {
             connection.setReadTimeout(MAX_CONNECTION_TIMEOUT);
             connection.setReadTimeout(MAX_READ_TIMEOUT);
             int responseCode = connection.getResponseCode();
+            System.out.println(connection.getContentLength() / (double) 1e6 + " MBs");
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 String line;

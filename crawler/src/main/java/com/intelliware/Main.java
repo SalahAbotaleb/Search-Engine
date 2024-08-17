@@ -14,8 +14,9 @@ public class Main {
     public static void main(String[] args) {
         SeedsParser parser = new SeedsParser("seeds.txt");
         List<URL> urls = parser.parse();
-        TraverserManager manager = new TraverserManager(10, urls, 1);
+        TraverserManager manager = new TraverserManager(4, urls, 2);
         manager.start();
+        manager.waitForFinish();
         System.out.println(manager.getVisitedPages().size());
     }
 }

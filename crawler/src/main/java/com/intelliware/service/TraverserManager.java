@@ -1,10 +1,8 @@
 package com.intelliware.service;
 
 import java.net.URL;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -26,6 +24,7 @@ public class TraverserManager {
     }
 
     private void initThreads() {
+        System.out.println(urls.subList(0, 0));
         threads = new LinkedList<Thread>();
         for (int i = 0; i < threadsCnt; i++) {
             List<URL> partition = getThreadPartition(i);
@@ -36,10 +35,13 @@ public class TraverserManager {
 
     private List<URL> getThreadPartition(int idx) {
         int urlsCnt = urls.size();
-        int slice = (int) Math.ceil(urlsCnt / (double) threadsCnt);
+        int slice = (int) Math.floor(urlsCnt / (double) threadsCnt);
         int stIdx = slice * idx;
-        int endIdx = Math.min(slice * idx + slice - 1, urlsCnt - 1);
-        return urls.subList(stIdx, endIdx);
+        int endIdxExclusive = slice * idx + slice;
+        if (idx == threadsCnt - 1) {
+            endIdxExclusive = urlsCnt;
+        }
+        return urls.subList(stIdx, endIdxExclusive);
     }
 
     public void start() {
@@ -50,5 +52,15 @@ public class TraverserManager {
 
     public List<PageContent> getVisitedPages() {
         return visitedPages.keySet().stream().toList();
+    }
+
+    public void waitForFinish() {
+        for (int i = 0; i < threadsCnt; i++) {
+            try {
+                threads.get(i).join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

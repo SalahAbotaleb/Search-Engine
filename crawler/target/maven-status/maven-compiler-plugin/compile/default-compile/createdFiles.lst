@@ -1,8 +1,0 @@
-com\intelliware\service\TraverserManager.class
-com\intelliware\service\UrlInvoker.class
-com\intelliware\model\PageContent.class
-com\intelliware\Main.class
-com\intelliware\service\ResourceReader.class
-com\intelliware\service\Traverser.class
-com\intelliware\service\HtmlNormalizer.class
-com\intelliware\service\SeedsParser.class

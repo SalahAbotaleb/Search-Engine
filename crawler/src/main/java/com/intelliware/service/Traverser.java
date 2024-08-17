@@ -4,31 +4,28 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.intelliware.model.PageContent;
+import com.intelliware.model.TraverserSharedData;
 
 public class Traverser implements Runnable {
     private Queue<URL> urls;
-    private AtomicInteger remainingTraverses;
-    private ConcurrentHashMap<PageContent, Boolean> visitedPages;
+    private TraverserSharedData sharedData;
     private HtmlNormalizer normalizer;
 
-    public Traverser(List<URL> urls, ConcurrentHashMap visitedPages, AtomicInteger remainingTraverses) {
+    public Traverser(List<URL> urls, TraverserSharedData sharedData) {
         this.urls = new LinkedList<>(urls);
-        this.remainingTraverses = remainingTraverses;
         this.normalizer = new HtmlNormalizer();
-        this.visitedPages = visitedPages;
+        this.sharedData = sharedData;
     }
 
     public void run() {
         while (!urls.isEmpty()) {
-            if (remainingTraverses.get() <= 0) {
+            if (sharedData.getRemainingTraverses().get() <= 0) {
                 return;
             }
             processFront();
-            remainingTraverses.decrementAndGet();
+            sharedData.getRemainingTraverses().decrementAndGet();
         }
     }
 
@@ -51,11 +48,17 @@ public class Traverser implements Runnable {
     }
 
     private boolean isPageVisited(PageContent pageContent) {
-        return visitedPages.containsKey(pageContent) == true;
+        int hashKey = pageContent.getContent().hashCode();
+        return sharedData.getVisitedPages().containsKey(hashKey) == true;
     }
 
     private void addPage(PageContent pageContent) {
-        visitedPages.put(pageContent, true);
+        if (pageContent.getContent().equals("") == true) {
+            return;
+        }
+        sharedData.getVisitedPages().put(pageContent.hashCode(), true);
+        sharedData.getPagesToSave().add(pageContent);
+        sharedData.getPagesToSaveCnt().release();
     }
 
     private void addUrls() {

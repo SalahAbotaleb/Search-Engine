@@ -1,6 +1,7 @@
 package com.intelliware.repository;
 
 import com.intelliware.model.PageContent;
+import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
 import dev.morphia.Datastore;
@@ -14,7 +15,8 @@ public class FetchedPagesRepo {
 
     private FetchedPagesRepo() {
         dbUri = System.getenv("MONGODB_URI");
-        datastore = Morphia.createDatastore(MongoClients.create(dbUri), dbName);
+        MongoClient client = MongoClients.create(dbUri);
+        datastore = Morphia.createDatastore(client, dbName);
     }
 
     public static FetchedPagesRepo getInstance() {

@@ -1,32 +1,28 @@
 package com.intelliware.repository;
 
-import com.intelliware.model.PageContent;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
 import dev.morphia.Datastore;
 import dev.morphia.Morphia;
 
-public class FetchedPagesRepo {
+public class DbConfig {
+    private static DbConfig db = null;
     private final String dbUri;
     private final String dbName = "searchEngine";
     private final Datastore datastore;
-    private static FetchedPagesRepo repo = null;
 
-    private FetchedPagesRepo() {
+    private DbConfig() {
         dbUri = System.getenv("MONGODB_URI");
         MongoClient client = MongoClients.create(dbUri);
         datastore = Morphia.createDatastore(client, dbName);
     }
 
-    public static FetchedPagesRepo getInstance() {
-        if (repo == null) {
-            repo = new FetchedPagesRepo();
+    public static Datastore getDataStore() {
+        if (db == null) {
+            db = new DbConfig();
         }
-        return repo;
+        return db.datastore;
     }
 
-    public void save(PageContent pageContent) {
-        datastore.save(pageContent);
-    }
 }

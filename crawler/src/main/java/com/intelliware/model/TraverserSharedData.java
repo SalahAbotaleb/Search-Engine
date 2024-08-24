@@ -9,14 +9,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TraverserSharedData {
     private final AtomicInteger remainingTraverses;
     private final ConcurrentHashMap<Integer, Boolean> visitedPages;
-    private final Semaphore pagesToSaveCnt;
     private final Queue<PageContent> pagesToSave;
+    private final Semaphore pagesToSaveCnt;
+    private final Queue<UrlState> urlsToSave;
+    private final Semaphore urlsToSaveCnt;
+    private final Queue<UrlState> visitedUrlsToDelete;
+    private final Semaphore visitedUrlsToDeleteCnt;
 
     public TraverserSharedData(int maxTraverses) {
         remainingTraverses = new AtomicInteger(maxTraverses);
         visitedPages = new ConcurrentHashMap<>();
-        pagesToSaveCnt = new Semaphore(0);
         pagesToSave = new ConcurrentLinkedQueue<>();
+        pagesToSaveCnt = new Semaphore(0);
+        urlsToSave = new ConcurrentLinkedQueue<>();
+        urlsToSaveCnt = new Semaphore(0);
+        visitedUrlsToDelete = new ConcurrentLinkedQueue<>();
+        visitedUrlsToDeleteCnt = new Semaphore(0);
     }
 
     public AtomicInteger getRemainingTraverses() {
@@ -33,6 +41,22 @@ public class TraverserSharedData {
 
     public Queue<PageContent> getPagesToSave() {
         return pagesToSave;
+    }
+
+    public Queue<UrlState> getUrlsToSave() {
+        return urlsToSave;
+    }
+
+    public Semaphore getUrlsToSaveCnt() {
+        return urlsToSaveCnt;
+    }
+
+    public Queue<UrlState> getVisitedUrlsToDelete() {
+        return visitedUrlsToDelete;
+    }
+
+    public Semaphore getVisitedUrlsToDeleteCnt() {
+        return visitedUrlsToDeleteCnt;
     }
 
 }

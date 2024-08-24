@@ -36,6 +36,10 @@ public class HtmlNormalizer {
         body = document.body();
     }
 
+    public boolean isLangEnglish() {
+        return false;
+    }
+
     public String normalize() {
         if (body == null)
             return null;

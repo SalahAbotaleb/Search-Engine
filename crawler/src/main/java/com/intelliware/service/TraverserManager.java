@@ -3,39 +3,47 @@ package com.intelliware.service;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+
+import com.intelliware.model.TraverserAlgoConfig;
 import com.intelliware.model.TraverserSharedData;
 
 public class TraverserManager {
     private List<URL> urls;
     private List<Thread> traverserThreads;
-    private Thread saverThread;
+    private List<DbConsumer> saverThreads;
     private final int traverserThreadsCnt;
     private TraverserSharedData sharedData;
+    private TraverserAlgoConfig algoConfig;
 
-    public TraverserManager(int maxTraverses, List<URL> urls, int traverserThreadsCnt) {
+    public TraverserManager(TraverserAlgoConfig algoConfig, List<URL> urls, int traverserThreadsCnt) {
         this.traverserThreadsCnt = traverserThreadsCnt;
         this.urls = urls;
-        sharedData = new TraverserSharedData(maxTraverses);
+        this.algoConfig = algoConfig;
+        sharedData = new TraverserSharedData(algoConfig.getMaxTraverses());
         initThreads();
     }
 
     private void initThreads() {
         initTraverserThreads();
-        initSaverThread();
+        initConsumerThreads();
     }
 
     private void initTraverserThreads() {
         traverserThreads = new LinkedList<Thread>();
         for (int i = 0; i < traverserThreadsCnt; i++) {
             List<URL> partition = getTraverserThreadPartition(i);
-            Traverser traverser = new Traverser(partition, sharedData);
+            Traverser traverser = new Traverser(partition, sharedData, algoConfig);
             traverserThreads.add(i, new Thread(traverser));
         }
     }
 
-    private void initSaverThread() {
-        FetchedPagesSaver saver = new FetchedPagesSaver(sharedData.getPagesToSave(), sharedData.getPagesToSaveCnt());
-        saverThread = new Thread(saver);
+    private void initConsumerThreads() {
+        saverThreads = new LinkedList<>();
+        saverThreads.add(new FetchedPagesSaver(sharedData.getPagesToSave(), sharedData.getPagesToSaveCnt()));
+        saverThreads.add(new QueuedUrlStateSaver(sharedData.getUrlsToSave(), sharedData.getUrlsToSaveCnt()));
+        saverThreads.add(
+                new VisitedUrlStateSaver(sharedData.getVisitedUrlsToDelete(), sharedData.getVisitedUrlsToDeleteCnt()));
+
     }
 
     private List<URL> getTraverserThreadPartition(int idx) {
@@ -50,36 +58,40 @@ public class TraverserManager {
     }
 
     public void start() {
+        startSaverThreads();
         startTraverserThreads();
-        startSaverThread();
     }
 
     private void startTraverserThreads() {
-        for (int i = 0; i < traverserThreadsCnt; i++) {
-            traverserThreads.get(i).start();
+        for (Thread traverser : traverserThreads) {
+            traverser.start();
         }
     }
 
-    private void startSaverThread() {
-        saverThread.start();
+    private void startSaverThreads() {
+        for (DbConsumer consumer : saverThreads) {
+            consumer.start();
+        }
     }
 
     public void waitForFinish() {
         waitForTraverserThreads();
-        stopSaverThread();
+        stopSaverThreads();
     }
 
     private void waitForTraverserThreads() {
-        for (int i = 0; i < traverserThreadsCnt; i++) {
+        for (Thread traverser : traverserThreads) {
             try {
-                traverserThreads.get(i).join();
+                traverser.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void stopSaverThread() {
-        saverThread.interrupt();
+    private void stopSaverThreads() {
+        for (DbConsumer consumer : saverThreads) {
+            consumer.interrupt();
+        }
     }
 }

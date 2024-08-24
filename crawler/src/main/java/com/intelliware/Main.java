@@ -1,21 +1,23 @@
 package com.intelliware;
 
-import java.io.File;
 import java.net.URL;
 import java.util.List;
 
-import com.intelliware.model.PageContent;
-import com.intelliware.repository.FetchedPagesRepo;
-import com.intelliware.service.HtmlNormalizer;
+import com.intelliware.model.TraverserAlgoConfig;
 import com.intelliware.service.SeedsParser;
+import com.intelliware.service.StateRecover;
 import com.intelliware.service.TraverserManager;
-import com.intelliware.service.UrlInvoker;
 
 public class Main {
     public static void main(String[] args) {
         SeedsParser parser = new SeedsParser("seeds.txt");
-        List<URL> urls = parser.parse();
-        TraverserManager manager = new TraverserManager(100, urls, 5);
+        StateRecover recover = new StateRecover();
+        List<URL> urls = recover.getUrls();
+        if (urls == null) {
+            urls = parser.parse();
+        }
+        TraverserAlgoConfig algoConfig = new TraverserAlgoConfig((int) 1e5, (int) 1e5);
+        TraverserManager manager = new TraverserManager(algoConfig, urls, 10);
         manager.start();
         manager.waitForFinish();
     }

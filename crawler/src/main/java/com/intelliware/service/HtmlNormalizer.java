@@ -13,6 +13,7 @@ import org.jsoup.select.Elements;
 public class HtmlNormalizer {
     private String content;
     private Element body;
+    private Element htmlTag;
 
     public HtmlNormalizer() {
     }
@@ -27,16 +28,27 @@ public class HtmlNormalizer {
 
     public void setContent(String content) {
         this.content = content;
-        this.generateBody();
+        this.parse();
     }
 
-    private void generateBody() {
+    private void parse() {
         Document document = Jsoup.parse(content);
+        htmlTag = document.selectFirst("html");
         document.select("script, style").remove();
         body = document.body();
     }
 
     public boolean isLangEnglish() {
+        if (htmlTag == null) {
+            return true;
+        }
+        String language = htmlTag.attr("lang");
+        if (language.equals("")) {
+            return true;
+        }
+        if (language.equals("en")) {
+            return true;
+        }
         return false;
     }
 

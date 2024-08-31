@@ -16,7 +16,7 @@ public class Main {
         if (urls == null) {
             urls = parser.parse();
         }
-        TraverserAlgoConfig algoConfig = new TraverserAlgoConfig((int) 1e5, (int) 1e5);
+        TraverserAlgoConfig algoConfig = new TraverserAlgoConfig((int) 100, (int) 100);
         TraverserManager manager = new TraverserManager(algoConfig, urls, 10);
         manager.start();
         manager.waitForFinish();
